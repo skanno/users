@@ -4,8 +4,10 @@ declare(strict_types=1);
 namespace App\Model\Table;
 
 use ArrayObject;
+use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
+use Cake\I18n\DateTime;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
@@ -59,7 +61,13 @@ class TempUsersTable extends Table
      */
     public function afterMarshal(EventInterface $event, EntityInterface $entity, ArrayObject $data, ArrayObject $options): void
     {
-        $entity->onetime_token = sprintf('%06d', rand(0, 999999));
+        $tokenLength = Configure::read('user.onetime_token.length', 999999);
+        $max = pow(10, $tokenLength) - 1;
+        $entity->onetime_token = sprintf("%0{$tokenLength}d", rand(0, $max));
+
+        $now = new DateTime();
+        $expired = $now->addSeconds(Configure::read('user.onetime_token.expire', 0));
+        $entity->expired = $expired;
     }
 
     /**
