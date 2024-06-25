@@ -9,7 +9,10 @@ $expireMinutes = ceil(Configure::read('user.onetime_token.expire', 0) / DateTime
 $registerUrl = Router::fullBaseUrl() . $this->Url->build([
     'controller' => 'users',
     'action' => 'add',
-    '?' => ['token' => $onetime_token],
+    '?' => [
+        'token' => $onetime_token,
+        'c' => md5($onetime_token),
+    ],
 ]);
 ?>
 

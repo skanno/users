@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\ORM\TableRegistry;
+
 /**
  * Users Controller
  *
@@ -43,6 +45,21 @@ class UsersController extends AppController
      */
     public function add()
     {
+        $token = $this->getRequest()->getQuery('token');
+
+        $tempUser = $this->getRequest()->getSession()->read(md5($token));
+        if (empty($tempUser)) {
+            $tempUser = TableRegistry::getTableLocator()
+                ->get('TempUsers')
+                ->getTempUser($token);
+            $this->getRequest()->getSession()->write(md5($token), $tempUser);
+        }
+
+        if (empty($tempUser)) {
+            $this->Flash->error('ワンタイムパスワードが違う、または有効期限切れです。');
+            $this->render('add_error');
+        }
+
         $user = $this->Users->newEmptyEntity();
         if ($this->request->is('post')) {
             $user = $this->Users->patchEntity($user, $this->request->getData());
@@ -53,6 +70,7 @@ class UsersController extends AppController
             }
             $this->Flash->error(__('The user could not be saved. Please, try again.'));
         }
+        $this->set(compact('tempUser'));
         $this->set(compact('user'));
     }
 

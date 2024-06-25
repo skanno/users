@@ -55,11 +55,25 @@ class TempUsersController extends AppController
                 );
 
                 $this->Flash->success(__('The temp user has been saved.'));
+                $this->request->getSession()->write('tempUser', $tempUser);
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'doneSendMail']);
             }
             $this->Flash->error(__('The temp user could not be saved. Please, try again.'));
         }
+        $this->set(compact('tempUser'));
+    }
+
+    /**
+     * doneSendMail method
+     *
+     * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.
+     */
+    public function doneSendMail()
+    {
+        $tempUser = $this->request->getSession()->read('tempUser');
+
+        $this->set('c', md5($tempUser->onetime_toke . gethostname()));
         $this->set(compact('tempUser'));
     }
 

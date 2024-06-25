@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
+use App\Model\Entity\TempUser;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -104,5 +105,26 @@ class TempUsersTable extends Table
         $rules->add($rules->isUnique(['email', 'onetime_token']), ['errorField' => 'email']);
 
         return $rules;
+    }
+
+    public function getTempUser(string $onetimeToken): ?TempUser
+    {
+        $tempUser = $this->find()
+            ->where([
+                'TempUsers.onetime_token' => $onetimeToken,
+            ])
+            ->first();
+
+        if (empty($tempUser)) {
+            return null;
+        } else {
+            $this->delete($tempUser);
+        }
+
+        if ($tempUser->expired->isPast()) {
+            return null;
+        }
+
+        return $tempUser;
     }
 }
