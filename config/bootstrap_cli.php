@@ -33,3 +33,6 @@ if (Configure::check('Log.debug')) {
 if (Configure::check('Log.error')) {
     Configure::write('Log.error.file', 'cli-error');
 }
+if (Configure::read('debug')) {
+    $this->addPlugin('Cake/Repl');
+}
