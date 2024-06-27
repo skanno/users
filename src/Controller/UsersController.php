@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\ORM\TableRegistry;
+use Cake\Utility\Security;
+use Cake\Http\Exception\ForbiddenException;
 
 /**
  * Users Controller
@@ -46,6 +48,10 @@ class UsersController extends AppController
     public function add()
     {
         $token = $this->getRequest()->getQuery('token');
+        $checkSum = $this->getRequest()->getQuery('c');
+        if (md5(Security::getSalt() . $token) !== $checkSum) {
+            throw new ForbiddenException('tokenが改竄されています。');
+        }
 
         $tempUser = $this->getRequest()->getSession()->read(md5($token));
         if (empty($tempUser)) {
