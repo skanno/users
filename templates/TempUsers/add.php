@@ -1,6 +1,5 @@
 <?= $this->Form->create($tempUser) ?>
-    ワンタイムとトークンを送付します。<br>
     メールアドレスを入力してください。
-    <?= $this->Form->control('email') ?>
-    <?= $this->Form->button(__('Submit')) ?>
+    <?= $this->Form->control('email', ['label' => false]) ?>
+    <?= $this->Form->button('送信') ?>
 <?= $this->Form->end() ?>

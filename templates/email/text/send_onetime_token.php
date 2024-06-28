@@ -19,5 +19,7 @@ $registerUrl = $this->Url->build([
 ]);
 ?>
 
-ワンタイムトークンの期限は<?= $expireMinutes ?>分以内です。
+下記URLから会員登録を続けてください。
 <?= $registerUrl ?>
+
+期限は<?= $expireMinutes ?>分以内です。

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
-use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
@@ -24,7 +23,6 @@ use Cake\Validation\Validator;
  * @method iterable<\App\Model\Entity\User>|\Cake\Datasource\ResultSetInterface<\App\Model\Entity\User> saveManyOrFail(iterable $entities, array $options = [])
  * @method iterable<\App\Model\Entity\User>|\Cake\Datasource\ResultSetInterface<\App\Model\Entity\User>|false deleteMany(iterable $entities, array $options = [])
  * @method iterable<\App\Model\Entity\User>|\Cake\Datasource\ResultSetInterface<\App\Model\Entity\User> deleteManyOrFail(iterable $entities, array $options = [])
- *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  */
 class UsersTable extends Table
@@ -63,8 +61,15 @@ class UsersTable extends Table
         $validator
             ->scalar('password')
             ->maxLength('password', 255)
+            ->minLength('password', 8)
             ->requirePresence('password', 'create')
-            ->notEmptyString('password');
+            ->notEmptyString('password')
+            ->add('password', 'custom', [
+                'rule' => function ($value, $context) {
+                    return $context['data']['password'] === $context['data']['password_confirm'];
+                },
+                'message' => 'パスワードとパスワード（確認）が一致していません。',
+            ]);
 
         return $validator;
     }
@@ -81,5 +86,18 @@ class UsersTable extends Table
         $rules->add($rules->isUnique(['email']), ['errorField' => 'email']);
 
         return $rules;
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $email
+     * @return bool
+     */
+    public function hasUser(string $email): bool
+    {
+        return (bool)$this->findByEmail($email)
+            ->all()
+            ->count();
     }
 }

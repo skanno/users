@@ -1,9 +1,7 @@
 <?= $this->Form->create($user) ?>
-<?= $tempUser->email ?>
 <?php
-    echo $this->Form->control('password');
-    echo $this->Form->control('password_confirm');
-    echo $this->Form->control('onetime_token', ['value' => $tempUser->onetime_token]);
+    echo $this->Form->control('password', ['label' => 'パスワード']);
+    echo $this->Form->control('password_confirm', ['type' => 'password', 'label' => 'パスワード(確認)']);
 ?>
-<?= $this->Form->button(__('Submit')) ?>
+<?= $this->Form->button('登録') ?>
 <?= $this->Form->end() ?>

@@ -11,6 +11,7 @@ use Cake\Event\EventInterface;
 use Cake\I18n\DateTime;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 
 /**
@@ -29,7 +30,6 @@ use Cake\Validation\Validator;
  * @method iterable<\App\Model\Entity\TempUser>|\Cake\Datasource\ResultSetInterface<\App\Model\Entity\TempUser> saveManyOrFail(iterable $entities, array $options = [])
  * @method iterable<\App\Model\Entity\TempUser>|\Cake\Datasource\ResultSetInterface<\App\Model\Entity\TempUser>|false deleteMany(iterable $entities, array $options = [])
  * @method iterable<\App\Model\Entity\TempUser>|\Cake\Datasource\ResultSetInterface<\App\Model\Entity\TempUser> deleteManyOrFail(iterable $entities, array $options = [])
- *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  */
 class TempUsersTable extends Table
@@ -82,7 +82,15 @@ class TempUsersTable extends Table
         $validator
             ->email('email')
             ->requirePresence('email', 'create')
-            ->notEmptyString('email');
+            ->notEmptyString('email')
+            ->add('email', 'custom', [
+                'rule' => function ($value, $context) {
+                    return !TableRegistry::getTableLocator()
+                        ->get('Users')
+                        ->hasUser($value);
+                },
+                'message' => 'すでに登録されているユーザーです。',
+            ]);
 
         $validator
             ->scalar('onetime_token')
@@ -107,6 +115,12 @@ class TempUsersTable extends Table
         return $rules;
     }
 
+    /**
+     * 登録前ユーザを取得します。
+     *
+     * @param string $onetimeToken ワンタイムトークン
+     * @return \App\Model\Entity\TempUser|null
+     */
     public function getTempUser(string $onetimeToken): ?TempUser
     {
         $tempUser = $this->find()
