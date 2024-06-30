@@ -42,6 +42,11 @@ class UsersTable extends Table
         $this->setDisplayField('email');
         $this->setPrimaryKey('id');
 
+        $this->hasMany('PasswordForgetUsers', [
+            'foreignKey' => 'user_id',
+            'dependent' => true,
+        ]);
+
         $this->addBehavior('Timestamp');
     }
 

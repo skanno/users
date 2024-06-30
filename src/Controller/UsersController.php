@@ -272,4 +272,19 @@ class UsersController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
+
+    public function withdrawal()
+    {
+        $this->request->allowMethod(['post', 'delete']);
+        $user = $this->Authentication->getIdentity();
+        if ($this->Users->delete($user)) {
+            $this->Authentication->logout();
+            $this->response = $this->response->withExpiredCookie(new Cookie(AUTO_LOGIN_KEY_COOKIE_NAME));
+            $this->Flash->success('退会しました。');
+        } else {
+            $this->Flash->error('退会に失敗しました。');
+        }
+
+        return $this->redirect(['action' => 'login']);
+    }
 }
