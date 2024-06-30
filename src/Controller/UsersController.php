@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Util\Token;
+use Cake\Auth\DefaultPasswordHasher;
 use Cake\Event\EventInterface;
 use Cake\Http\Exception\ForbiddenException;
 
@@ -161,6 +162,29 @@ class UsersController extends AppController
                 $this->Flash->success('登録しました。');
 
                 return $this->redirect(['action' => 'login']);
+            }
+            $this->Flash->error('登録できませんでした。');
+        }
+    }
+
+    public function changePassword()
+    {
+        $this->request->allowMethod(['get', 'post']);
+        if ($this->request->isPost()) {
+            $user = $this->Authentication->getIdentity();
+            if ($user->checkPassword($this->request->getData('password_current'))) {
+
+                $user = $this->Users->patchEntity(
+                    $user,
+                    $this->request->getData()
+                );
+                if ($this->Users->save($user)) {
+                    $this->Flash->success('パスワードを変更しました。');
+
+                    return $this->redirect(['action' => 'home']);
+                }
+            } else {
+                $this->Flash->error('現在のパスワードが違います。');
             }
             $this->Flash->error('登録できませんでした。');
         }

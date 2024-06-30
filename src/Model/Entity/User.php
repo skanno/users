@@ -73,4 +73,15 @@ class User extends Entity implements IdentityInterface
     {
         return $this;
     }
+
+    /**
+     * パスワードと同一か検証します。
+     *
+     * @param string $password パスワード
+     * @return bool
+     */
+    public function checkPassword(string $password): bool
+    {
+        return (new DefaultPasswordHasher())->check($password, $this->password);
+    }
 }

@@ -19,6 +19,7 @@
         </div>
         <div class="top-nav-links">
             <?php if ($user) : ?>
+                <?= $this->Html->link('パスワード変更', ['controller' => 'Users', 'action' => 'change-password']) ?>
                 <?= $this->Html->link('ログアウト', ['controller' => 'Users', 'action' => 'logout']) ?>
             <?php endif ?>
         </div>
