@@ -3,10 +3,14 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Util\Hash;
 use App\Util\Token;
-use Cake\Auth\DefaultPasswordHasher;
 use Cake\Event\EventInterface;
+use Cake\Http\Cookie\Cookie;
 use Cake\Http\Exception\ForbiddenException;
+use DateTime;
+
+const AUTO_LOGIN_KEY_COOKIE_NAME = 'auto_login_key';
 
 /**
  * Users Controller
@@ -101,8 +105,27 @@ class UsersController extends AppController
     public function login()
     {
         $this->request->allowMethod(['get', 'post']);
+        $autoLoginKey = $this->request->getCookie(AUTO_LOGIN_KEY_COOKIE_NAME);
+        if ($autoLoginKey != null) {
+            $user = $this->Users->findByAutoLoginKey($autoLoginKey)->first();
+            if ($user != null) {
+                $this->Authentication->setIdentity($user);
+
+                return $this->redirect(['action' => 'home']);
+            }
+        }
+
         $result = $this->Authentication->getResult();
         if ($result && $result->isValid()) {
+            $user = $this->Authentication->getIdentity();
+            $user->auto_login_key = Hash::generate();
+            $this->Users->save($user);
+            $this->response = $this->response->withCookie(Cookie::create(
+                AUTO_LOGIN_KEY_COOKIE_NAME,
+                $user->auto_login_key,
+                ['expires' => new DateTime('+1 month')]
+            ));
+
             $redirect = $this->request->getQuery('redirect', [
                 'controller' => 'Users',
                 'action' => 'home',
@@ -173,12 +196,12 @@ class UsersController extends AppController
         if ($this->request->isPost()) {
             $user = $this->Authentication->getIdentity();
             if ($user->checkPassword($this->request->getData('password_current'))) {
-
                 $user = $this->Users->patchEntity(
                     $user,
                     $this->request->getData()
                 );
                 if ($this->Users->save($user)) {
+                    $this->Authentication->setIdentity($user);
                     $this->Flash->success('パスワードを変更しました。');
 
                     return $this->redirect(['action' => 'home']);
@@ -194,6 +217,10 @@ class UsersController extends AppController
     {
         $result = $this->Authentication->getResult();
         if ($result && $result->isValid()) {
+            $user = $this->Authentication->getIdentity();
+            $user->auto_login_key = null;
+            $this->Users->save($user);
+            $this->response = $this->response->withExpiredCookie(new Cookie(AUTO_LOGIN_KEY_COOKIE_NAME));
             $this->Authentication->logout();
 
             return $this->redirect(['controller' => 'Users', 'action' => 'login']);
