@@ -3,9 +3,10 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
-use Cake\ORM\RulesChecker;
-use Cake\ORM\Table;
-use Cake\Validation\Validator;
+use cake\orm\ruleschecker;
+use cake\orm\table;
+use cake\validation\validator;
+use cake\core\configure;
 
 /**
  * Users Model
@@ -60,8 +61,8 @@ class UsersTable extends Table
 
         $validator
             ->scalar('password')
-            ->maxLength('password', 255)
-            ->minLength('password', 8)
+            ->maxLength('password', Configure::read('user.password.maxLength'))
+            ->minLength('password', Configure::read('user.password.minLength'))
             ->requirePresence('password', 'create')
             ->notEmptyString('password')
             ->add('password', 'custom', [

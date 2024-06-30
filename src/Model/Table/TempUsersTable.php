@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
+use App\Util\Token;
 use App\Model\Entity\TempUser;
 use ArrayObject;
 use Cake\Core\Configure;
@@ -62,12 +63,11 @@ class TempUsersTable extends Table
      */
     public function afterMarshal(EventInterface $event, EntityInterface $entity, ArrayObject $data, ArrayObject $options): void
     {
-        $tokenLength = Configure::read('user.onetime_token.length', 999999);
-        $max = pow(10, $tokenLength) - 1;
-        $entity->onetime_token = sprintf("%0{$tokenLength}d", rand(0, $max));
+        $token = new Token();
+        $entity->token = $token->get();
 
         $now = new DateTime();
-        $expired = $now->addSeconds(Configure::read('user.onetime_token.expire', 0));
+        $expired = $now->addSeconds(Configure::read('user.token.expire', 0));
         $entity->expired = $expired;
     }
 
@@ -93,10 +93,10 @@ class TempUsersTable extends Table
             ]);
 
         $validator
-            ->scalar('onetime_token')
-            ->maxLength('onetime_token', 10)
-            ->requirePresence('onetime_token', 'create')
-            ->notEmptyString('onetime_token');
+            ->scalar('token')
+            ->maxLength('token', 10)
+            ->requirePresence('token', 'create')
+            ->notEmptyString('token');
 
         return $validator;
     }
@@ -110,7 +110,7 @@ class TempUsersTable extends Table
      */
     public function buildRules(RulesChecker $rules): RulesChecker
     {
-        $rules->add($rules->isUnique(['email', 'onetime_token']), ['errorField' => 'email']);
+        $rules->add($rules->isUnique(['email', 'token']), ['errorField' => 'email']);
 
         return $rules;
     }
@@ -118,14 +118,14 @@ class TempUsersTable extends Table
     /**
      * 登録前ユーザを取得します。
      *
-     * @param string $onetimeToken ワンタイムトークン
+     * @param string $token ワンタイムトークン
      * @return \App\Model\Entity\TempUser|null
      */
-    public function getTempUser(string $onetimeToken): ?TempUser
+    public function getTempUser(string $token): ?TempUser
     {
         $tempUser = $this->find()
             ->where([
-                'TempUsers.onetime_token' => $onetimeToken,
+                'TempUsers.token' => $token,
             ])
             ->first();
 

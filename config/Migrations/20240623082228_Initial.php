@@ -21,7 +21,7 @@ class Initial extends AbstractMigration
                 'limit' => 255,
                 'null' => false,
             ])
-            ->addColumn('onetime_token', 'string', [
+            ->addColumn('token', 'string', [
                 'default' => null,
                 'limit' => 10,
                 'null' => false,
@@ -39,7 +39,7 @@ class Initial extends AbstractMigration
             ->addIndex(
                 [
                     'email',
-                    'onetime_token',
+                    'token',
                 ],
                 [
                     'name' => 'email',

@@ -24,7 +24,7 @@
                 </tr>
                 <tr>
                     <th><?= __('Onetime Token') ?></th>
-                    <td><?= h($tempUser->onetime_token) ?></td>
+                    <td><?= h($tempUser->token) ?></td>
                 </tr>
                 <tr>
                     <th><?= __('Id') ?></th>

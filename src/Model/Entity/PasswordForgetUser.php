@@ -7,14 +7,16 @@ use App\Util\Token;
 use Cake\ORM\Entity;
 
 /**
- * TempUser Entity
+ * PasswordForgetUser Entity
  *
  * @property int $id
- * @property string $email
+ * @property int $user_id
  * @property string $token
  * @property \Cake\I18n\DateTime|null $created
+ *
+ * @property \App\Model\Entity\User $user
  */
-class TempUser extends Entity
+class PasswordForgetUser extends Entity
 {
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -26,9 +28,19 @@ class TempUser extends Entity
      * @var array<string, bool>
      */
     protected array $_accessible = [
-        'email' => true,
+        'user_id' => true,
         'token' => true,
         'created' => true,
+        'user' => true,
+    ];
+
+    /**
+     * Fields that are excluded from JSON versions of the entity.
+     *
+     * @var list<string>
+     */
+    protected array $_hidden = [
+        'token',
     ];
 
     /**

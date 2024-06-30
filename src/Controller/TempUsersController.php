@@ -64,8 +64,8 @@ class TempUsersController extends AppController
                 $this->Mailer->deliver(
                     '仮ユーザー登録のお知らせ',
                     $tempUser->email,
-                    'send_onetime_token',
-                    ['onetime_token' => $tempUser->onetime_token]
+                    'send_temp_registration',
+                    compact('tempUser')
                 );
 
                 $this->Flash->success('メールを送信しました。ご確認ください。');

@@ -5,9 +5,13 @@ use Cake\I18n\DateTime;
 
 return [
     'user' => [
-        'onetime_token' => [
+        'token' => [
             'length' => 6,
             'expire' => DateTime::SECONDS_PER_MINUTE * 10,
+        ],
+        'password' => [
+            'minLength' => 6,
+            'maxLength' => 100,
         ],
     ],
 ];

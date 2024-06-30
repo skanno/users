@@ -3,3 +3,4 @@
     <?= $this->Form->control('email', ['label' => false]) ?>
     <?= $this->Form->button('送信') ?>
 <?= $this->Form->end() ?>
+<?= $this->Html->link('ログイン', ['controller' => 'Users', 'action' => 'login']) ?>

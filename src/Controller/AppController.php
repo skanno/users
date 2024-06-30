@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Controller\Controller;
+use Cake\Event\EventInterface;
 
 /**
  * Application Controller
@@ -45,10 +46,17 @@ class AppController extends Controller
         $this->loadComponent('FormProtection');
         $this->loadComponent('Mailer');
         $this->loadComponent('Authentication.Authentication');
-        /*
-         * Enable the following component for recommended CakePHP form protection settings.
-         * see https://book.cakephp.org/4/en/controllers/components/form-protection.html
-         */
-        //$this->loadComponent('FormProtection');
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param \Cake\Event\EventInterface $event
+     * @return void
+     */
+    public function beforeRender(EventInterface $event)
+    {
+        parent::beforeRender($event);
+        $this->set('user', $this->Authentication->getIdentity());
     }
 }

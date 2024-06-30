@@ -3,10 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Util\Token;
 use Cake\Event\EventInterface;
 use Cake\Http\Exception\ForbiddenException;
-use Cake\ORM\TableRegistry;
-use Cake\Utility\Security;
 
 /**
  * Users Controller
@@ -24,7 +23,12 @@ class UsersController extends AppController
     public function beforeFilter(EventInterface $event)
     {
         parent::beforeFilter($event);
-        $this->Authentication->addUnauthenticatedActions(['add', 'login']);
+        $this->Authentication->addUnauthenticatedActions([
+            'add',
+            'login',
+            'forget',
+            'resetPassword',
+        ]);
     }
 
     /**
@@ -60,22 +64,20 @@ class UsersController extends AppController
      */
     public function add()
     {
-        $token = $this->getRequest()->getQuery('token');
+        $token = new Token($this->getRequest()->getQuery('token'));
         $checkSum = $this->getRequest()->getQuery('c');
-        if (md5(Security::getSalt() . $token) !== $checkSum) {
+        if (!$token->checkToken($checkSum)) {
             throw new ForbiddenException('URLが改竄されています。');
         }
 
-        $tempUser = $this->getRequest()->getSession()->read(md5($token));
+        $tempUser = $this->getRequest()->getSession()->read(md5($token->get()));
         if (empty($tempUser)) {
-            $tempUser = TableRegistry::getTableLocator()
-                ->get('TempUsers')
-                ->getTempUser($token);
-            $this->getRequest()->getSession()->write(md5($token), $tempUser);
+            $tempUser = $this->fetchTable('TempUsers')->getTempUser($token->get());
+            $this->getRequest()->getSession()->write(md5($token->get()), $tempUser);
         }
 
         if (empty($tempUser)) {
-            $this->Flash->error('仮ユーザーがいませんでした。');
+            $this->Flash->error('仮ユーザーに登録されていません。');
             $this->render('add_error');
         }
 
@@ -112,6 +114,58 @@ class UsersController extends AppController
         }
     }
 
+    public function forget()
+    {
+        $this->request->allowMethod(['get', 'post']);
+        if ($this->request->isPost()) {
+            $email = $this->request->getData('email');
+            if ($this->Users->hasUser($email)) {
+                $passwordForgetUsers = $this->fetchTable('PasswordForgetUsers');
+                $passwordForgetUser = $passwordForgetUsers->newEmptyEntity();
+                $passwordForgetUser->user_id = $this->Users->findByEmail($email)->firstOrFail()->id;
+
+                if (!$passwordForgetUsers->save($passwordForgetUser)->hasErrors()) {
+                    $this->Mailer->deliver(
+                        'パスワード変更のお知らせ',
+                        $email,
+                        'forget',
+                        compact('passwordForgetUser')
+                    );
+                    $this->Flash->success('メールを送信しました。ご確認ください。');
+                }
+            } else {
+                $this->Flash->error('登録されているメールアドレスではありません。');
+            }
+        }
+    }
+
+    public function resetPassword()
+    {
+        $token = new Token($this->getRequest()->getQuery('token'));
+        $checkSum = $this->getRequest()->getQuery('c');
+        if (!$token->checkToken($checkSum)) {
+            throw new ForbiddenException('URLが改竄されています。');
+        }
+
+        $this->request->allowMethod(['get', 'post']);
+        if ($this->request->isPost()) {
+            $passwordForgetUsers = $this->fetchTable('PasswordForgetUsers')
+                ->findByToken($token->get())
+                ->contain(['Users'])
+                ->firstOrFail();
+            $user = $this->Users->patchEntity(
+                $passwordForgetUsers->user,
+                $this->request->getData()
+            );
+            if ($this->Users->save($user)) {
+                $this->Flash->success('登録しました。');
+
+                return $this->redirect(['action' => 'login']);
+            }
+            $this->Flash->error('登録できませんでした。');
+        }
+    }
+
     public function logout()
     {
         $result = $this->Authentication->getResult();
@@ -124,7 +178,6 @@ class UsersController extends AppController
 
     public function home()
     {
-        // debug($this->Authentication->getIdentity());
     }
 
     /**

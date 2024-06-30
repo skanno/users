@@ -13,7 +13,7 @@
                 <tr>
                     <th><?= $this->Paginator->sort('id') ?></th>
                     <th><?= $this->Paginator->sort('email') ?></th>
-                    <th><?= $this->Paginator->sort('onetime_token') ?></th>
+                    <th><?= $this->Paginator->sort('token') ?></th>
                     <th><?= $this->Paginator->sort('created') ?></th>
                     <th class="actions"><?= __('Actions') ?></th>
                 </tr>
@@ -23,7 +23,7 @@
                 <tr>
                     <td><?= $this->Number->format($tempUser->id) ?></td>
                     <td><?= h($tempUser->email) ?></td>
-                    <td><?= h($tempUser->onetime_token) ?></td>
+                    <td><?= h($tempUser->token) ?></td>
                     <td><?= h($tempUser->created) ?></td>
                     <td class="actions">
                         <?= $this->Html->link(__('View'), ['action' => 'view', $tempUser->id]) ?>

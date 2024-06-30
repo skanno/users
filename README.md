@@ -53,6 +53,6 @@ framework by default. You can, however, replace it with any other library or
 custom styles.
 
 TODO
-onetime_tokenが改ざんされていないことを確かめるために、チェックサムを生成したい
+tokenが改ざんされていないことを確かめるために、チェックサムを生成したい
     ↓
 saltの値が取れない
