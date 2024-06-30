@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
-use App\Model\Entity\TempUser;
+use App\Model\Entity\PasswordForgetUser;
 use App\Util\Token;
 use ArrayObject;
 use Cake\Core\Configure;
@@ -12,7 +12,6 @@ use Cake\Event\EventInterface;
 use Cake\I18n\DateTime;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
-use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 
 /**
@@ -109,5 +108,29 @@ class PasswordForgetUsersTable extends Table
         $rules->add($rules->existsIn(['user_id'], 'Users'), ['errorField' => 'user_id']);
 
         return $rules;
+    }
+
+    /**
+     * パスワードを忘れたユーザを取得します。
+     *
+     * @param string $token ワンタイムトークン
+     * @return \App\Model\Entity\PasswordForgetUser|null
+     */
+    public function getPasswordForgetUser(string $token): ?PasswordForgetUser
+    {
+        $passwordForgetUser = $this->findByToken($token)
+            ->contain(['Users'])
+            ->first();
+        if (empty($passwordForgetUser)) {
+            return null;
+        } else {
+            $this->delete($passwordForgetUser);
+        }
+
+        if ($passwordForgetUser->expired->isPast()) {
+            return null;
+        }
+
+        return $passwordForgetUser;
     }
 }

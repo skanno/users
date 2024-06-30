@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
-use App\Util\Token;
 use App\Model\Entity\TempUser;
+use App\Util\Token;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -123,12 +123,7 @@ class TempUsersTable extends Table
      */
     public function getTempUser(string $token): ?TempUser
     {
-        $tempUser = $this->find()
-            ->where([
-                'TempUsers.token' => $token,
-            ])
-            ->first();
-
+        $tempUser = $this->findByToken($token)->first();
         if (empty($tempUser)) {
             return null;
         } else {

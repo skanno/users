@@ -25,6 +25,11 @@ class CreatePasswordForgetUsers extends AbstractMigration
             'limit' => 255,
             'null' => false,
         ])
+        ->addColumn('expired', 'datetime', [
+            'default' => null,
+            'limit' => null,
+            'null' => false,
+        ])
         ->addColumn('created', 'datetime', [
             'default' => null,
             'limit' => null,

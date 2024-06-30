@@ -173,12 +173,17 @@ class UsersController extends AppController
 
         $this->request->allowMethod(['get', 'post']);
         if ($this->request->isPost()) {
-            $passwordForgetUsers = $this->fetchTable('PasswordForgetUsers')
-                ->findByToken($token->get())
-                ->contain(['Users'])
-                ->firstOrFail();
+            $passwordForgetUser = $this->fetchTable('PasswordForgetUsers')
+                ->getPasswordForgetUser($token->get());
+
+            if (empty($passwordForgetUser)) {
+                $this->Flash->error('有効期限切れです。');
+
+                return $this->redirect(['action' => 'forget']);
+            }
+
             $user = $this->Users->patchEntity(
-                $passwordForgetUsers->user,
+                $passwordForgetUser->user,
                 $this->request->getData()
             );
             if ($this->Users->save($user)) {
@@ -275,16 +280,18 @@ class UsersController extends AppController
 
     public function withdrawal()
     {
-        $this->request->allowMethod(['post', 'delete']);
+        $this->request->allowMethod(['get', 'post']);
         $user = $this->Authentication->getIdentity();
-        if ($this->Users->delete($user)) {
-            $this->Authentication->logout();
-            $this->response = $this->response->withExpiredCookie(new Cookie(AUTO_LOGIN_KEY_COOKIE_NAME));
-            $this->Flash->success('退会しました。');
-        } else {
-            $this->Flash->error('退会に失敗しました。');
-        }
+        if ($this->request->isPost()) {
+            if ($this->Users->delete($user)) {
+                $this->Authentication->logout();
+                $this->response = $this->response->withExpiredCookie(new Cookie(AUTO_LOGIN_KEY_COOKIE_NAME));
+                $this->Flash->success('退会しました。');
 
-        return $this->redirect(['action' => 'login']);
+                return $this->redirect(['action' => 'login']);
+            } else {
+                $this->Flash->error('退会に失敗しました。');
+            }
+        }
     }
 }
