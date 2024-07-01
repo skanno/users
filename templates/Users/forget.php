@@ -1,3 +1,6 @@
+<?php
+$this->assign('title', 'パスワードを忘れた');
+?>
 <?= $this->Form->create() ?>
 <?php
     echo $this->Form->control('email', ['label' => 'メールアドレス']);

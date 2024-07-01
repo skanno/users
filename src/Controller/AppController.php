@@ -44,7 +44,6 @@ class AppController extends Controller
 
         $this->loadComponent('Flash');
         $this->loadComponent('FormProtection');
-        $this->loadComponent('Mailer');
         $this->loadComponent('Authentication.Authentication');
     }
 

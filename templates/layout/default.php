@@ -28,6 +28,7 @@
     <main class="main">
         <div class="container">
             <?= $this->Flash->render() ?>
+            <h1><?= $this->fetch('title') ?></h1>
             <?= $this->fetch('content') ?>
         </div>
     </main>

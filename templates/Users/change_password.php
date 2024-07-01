@@ -1,3 +1,6 @@
+<?php
+$this->assign('title', 'パスワード変更');
+?>
 <?= $this->Form->create() ?>
 <?php
     echo $this->Form->control('password_current', ['type' => 'password', 'label' => '現在のパスワード']);

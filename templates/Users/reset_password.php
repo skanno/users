@@ -1,3 +1,6 @@
+<?php
+$this->assign('title', 'パスワード再設定');
+?>
 <?= $this->Form->create() ?>
 <?php
     echo $this->Form->control('password', ['label' => 'パスワード']);

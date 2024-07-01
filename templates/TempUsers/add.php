@@ -1,3 +1,6 @@
+<?php
+$this->assign('title', 'ユーザー仮登録');
+?>
 <?= $this->Form->create($tempUser) ?>
     メールアドレスを入力してください。
     <?= $this->Form->control('email', ['label' => false]) ?>
