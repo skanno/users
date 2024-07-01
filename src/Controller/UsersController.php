@@ -8,6 +8,7 @@ use App\Util\Token;
 use Cake\Event\EventInterface;
 use Cake\Http\Cookie\Cookie;
 use Cake\Http\Exception\ForbiddenException;
+use Cake\Mailer\MailerAwareTrait;
 use DateTime;
 
 const AUTO_LOGIN_KEY_COOKIE_NAME = 'auto_login_key';
@@ -19,6 +20,8 @@ const AUTO_LOGIN_KEY_COOKIE_NAME = 'auto_login_key';
  */
 class UsersController extends AppController
 {
+    use MailerAwareTrait;
+
     /**
      * Undocumented function
      *
@@ -123,12 +126,7 @@ class UsersController extends AppController
                 $passwordForgetUser->user_id = $this->Users->findByEmail($email)->firstOrFail()->id;
 
                 if (!$passwordForgetUsers->save($passwordForgetUser)->hasErrors()) {
-                    $this->Mailer->deliver(
-                        'パスワード変更のお知らせ',
-                        $email,
-                        'forget',
-                        compact('passwordForgetUser')
-                    );
+                    $this->getMailer('Users')->send('forgetPassword', [$email, $passwordForgetUser]);
                     $this->Flash->success('メールを送信しました。ご確認ください。');
                 }
             } else {

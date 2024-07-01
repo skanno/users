@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Event\EventInterface;
+use Cake\Mailer\MailerAwareTrait;
 
 /**
  * TempUsers Controller
@@ -12,6 +13,8 @@ use Cake\Event\EventInterface;
  */
 class TempUsersController extends AppController
 {
+    use MailerAwareTrait;
+
     /**
      * Undocumented function
      *
@@ -35,13 +38,7 @@ class TempUsersController extends AppController
         if ($this->request->is('post')) {
             $tempUser = $this->TempUsers->patchEntity($tempUser, $this->request->getData());
             if ($this->TempUsers->save($tempUser)) {
-                $this->Mailer->deliver(
-                    '仮ユーザー登録のお知らせ',
-                    $tempUser->email,
-                    'send_temp_registration',
-                    compact('tempUser')
-                );
-
+                $this->getMailer('Users')->send('tempUserRegistration', [$tempUser]);
                 $this->Flash->success('メールを送信しました。ご確認ください。');
                 $this->request->getSession()->write('tempUser', $tempUser);
 
