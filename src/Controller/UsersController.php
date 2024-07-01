@@ -60,7 +60,8 @@ class UsersController extends AppController
 
         if (empty($tempUser)) {
             $this->Flash->error('仮ユーザーに登録されていません。');
-            $this->render('add_error');
+
+            return $this->redirect(['controller' => 'TempUsers', 'action' => 'add']);
         }
 
         $user = $this->Users->newEmptyEntity();
@@ -163,7 +164,6 @@ class UsersController extends AppController
 
                 return $this->redirect(['action' => 'login']);
             }
-            $this->Flash->error('登録できませんでした。');
         }
     }
 
