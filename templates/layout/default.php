@@ -19,9 +19,8 @@
         </div>
         <div class="top-nav-links">
             <?php if ($user) : ?>
-                <?= $this->Html->link('パスワード変更', ['controller' => 'Users', 'action' => 'change-password']) ?>
+                <?= $this->Html->link('設定', ['controller' => 'Users', 'action' => 'settings']) ?>
                 <?= $this->Html->link('ログアウト', ['controller' => 'Users', 'action' => 'logout']) ?>
-                <?= $this->Html->link('退会', ['controller' => 'Users', 'action' => 'withdrawal']) ?>
             <?php endif ?>
         </div>
     </nav>

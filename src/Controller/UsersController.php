@@ -186,8 +186,11 @@ class UsersController extends AppController
             } else {
                 $this->Flash->error('現在のパスワードが違います。');
             }
-            $this->Flash->error('登録できませんでした。');
         }
+    }
+
+    public function settings()
+    {
     }
 
     public function logout()
